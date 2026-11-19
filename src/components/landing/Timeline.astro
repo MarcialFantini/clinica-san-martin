@@ -1,0 +1,61 @@
+---
+// Scene 6: the receptionist's day without and with automation, as two parallel timelines.
+import { DAY_AFTER, DAY_BEFORE, type TimelineBlock } from './data';
+
+const START = 8;
+const SPAN = 12;
+const hours = [8, 10, 12, 14, 16, 18, 20];
+const fmt = (h: number) => `${Math.floor(h)}:${h % 1 ? '30' : '00'}`;
+const style = (b: TimelineBlock, i: number) => `--s:${(b.from - START) / SPAN};--d:${(b.to - b.from) / SPAN};--i:${i}`;
+---
+
+<section id="antes-despues" class="scene tl-scene" aria-labelledby="tl-title" data-scene="antes-despues">
+  <div class="scene-intro">
+    <h2 id="tl-title">El mismo martes, dos recepciones</h2>
+    <p>
+      De 8 a 20, la misma clínica y la misma cantidad de pacientes. Sin automatización, todo pasa por el teléfono. Con
+      Recepta, los recordatorios y las consultas se resuelven solos.
+    </p>
+  </div>
+
+  <div class="tl" data-tl>
+    <div class="tl-axis" aria-hidden="true">
+      {hours.map((h) => <span style={`--s:${(h - START) / SPAN}`}>{h} h</span>)}
+    </div>
+    <div class="tl-row">
+      <h3>Sin automatización</h3>
+      <ol class="tl-track">
+        {
+          DAY_BEFORE.map((b, i) => (
+            <li class={`tl-block t-${b.tone}${b.to - b.from <= 0.5 ? ' short' : ''}`} title={`${fmt(b.from)} a ${fmt(b.to)}: ${b.label}`} style={style(b, i)}>
+              <span class="tl-time">
+                {fmt(b.from)} a {fmt(b.to)}
+              </span>
+              <span class="tl-label">{b.label}</span>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+    <div class="tl-row">
+      <h3>Con Recepta</h3>
+      <ol class="tl-track">
+        {
+          DAY_AFTER.map((b, i) => (
+            <li class={`tl-block t-${b.tone}${b.to - b.from <= 0.5 ? ' short' : ''}`} title={`${fmt(b.from)} a ${fmt(b.to)}: ${b.label}`} style={style(b, i + 2)}>
+              <span class="tl-time">
+                {fmt(b.from)} a {fmt(b.to)}
+              </span>
+              <span class="tl-label">{b.label}</span>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+    <dl class="tl-sum">
+      <div><dt>Al teléfono para confirmar</dt><dd><s>3 h 30 min</s> 0 min</dd></div>
+      <div><dt>Consultas sin respuesta</dt><dd><s>1 h</s> 0 min</dd></div>
+      <div><dt>Tiempo para otras tareas</dt><dd><s>0 min</s> 1 h 30 min</dd></div>
+    </dl>
+  </div>
+</section>

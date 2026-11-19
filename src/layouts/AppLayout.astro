@@ -1,0 +1,204 @@
+---
+// App shell: sidebar, live top bar, mobile tabs and the shared overlays.
+// The shell persists across client-side navigations so the simulation never stops.
+import { ClientRouter } from 'astro:transitions';
+import Head from '../components/Head.astro';
+import { icon } from '../lib/icons';
+import { NAV, isActive, type ViewId } from '../lib/nav';
+import '../styles/global.css';
+import '../styles/app.css';
+
+interface Props {
+  view: ViewId;
+  title: string;
+  description?: string;
+}
+const { view, title, description = 'Recepta: la recepción automática de Clínica San Martín. Demo con datos ficticios.' } = Astro.props;
+const mobileTabs = NAV.filter((n) => ['panel', 'bandeja', 'agenda', 'pacientes'].includes(n.view));
+const moreItems = NAV.filter((n) => !['panel', 'bandeja', 'agenda', 'pacientes'].includes(n.view));
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <Head title={`${title} · Recepta (demo)`} description={description} />
+    <ClientRouter />
+  </head>
+  <body data-view={view}>
+    <a class="skip-link" href="#main">Saltar al contenido</a>
+    <div class="shell" data-paused="false">
+      <aside class="sidebar" aria-label="Navegación principal" transition:persist="sidebar">
+        <a class="brand" href="/app/">
+          <span class="brand-mark" aria-hidden="true">R</span>
+          <span class="brand-text"><strong>Recepta</strong><span>Clínica San Martín</span></span>
+        </a>
+        <nav class="nav" aria-label="Secciones">
+          {
+            NAV.map((item) => (
+              <a href={item.href} data-nav={item.view} aria-current={isActive(item, view) ? 'page' : undefined} title={item.label}>
+                <Fragment set:html={icon(item.icon)} />
+                <span>{item.label}</span>
+                {item.view === 'bandeja' && <b class="nav-count" data-count="inbox" />}
+              </a>
+            ))
+          }
+        </nav>
+        <div class="side-foot">
+          <p>Demo con datos ficticios. Nada se envía de verdad.</p>
+          <a class="btn btn-sm" href="/">
+            <Fragment set:html={icon('back')} /><span>Ver la presentación</span>
+          </a>
+          <button class="btn btn-sm" type="button" data-action="reset">
+            <Fragment set:html={icon('reset')} /><span>Reiniciar demo</span>
+          </button>
+        </div>
+      </aside>
+
+      <header class="topbar" transition:persist="topbar">
+        <a class="mobile-brand" href="/app/" aria-label="Recepta, inicio">
+          <span class="brand-mark" aria-hidden="true">R</span>
+        </a>
+        <button class="palette-trigger" type="button" data-action="palette" aria-label="Buscar o ejecutar un comando">
+          <Fragment set:html={icon('search')} />
+          <span>Buscar pacientes, vistas o acciones</span>
+          <kbd>Ctrl K</kbd>
+        </button>
+        <div class="top-right">
+          <div class="live" role="group" aria-label="Simulación en vivo">
+            <span class="live-badge" aria-live="off"><span class="live-dot" aria-hidden="true"></span><span data-live-label>EN VIVO</span></span>
+            <span class="live-clock" data-clock>lunes 16 · 09:12</span>
+            <button class="btn-icon" type="button" data-action="toggle-pause" aria-label="Pausar simulación" title="Pausar (P)">
+              <Fragment set:html={icon('pause')} />
+            </button>
+            <div class="speed" role="group" aria-label="Velocidad">
+              <button type="button" data-speed="1" aria-pressed="true">1x</button>
+              <button type="button" data-speed="4" aria-pressed="false">4x</button>
+              <button type="button" data-speed="10" aria-pressed="false">10x</button>
+            </div>
+            <button class="btn-icon live-step" type="button" data-action="advance" aria-label="Adelantar una hora" title="Adelantar 1 h">
+              <Fragment set:html={icon('forward')} />
+            </button>
+          </div>
+          <button class="btn btn-ghost btn-icon bell" type="button" data-action="notifications" aria-label="Notificaciones" aria-expanded="false" aria-controls="notif-panel">
+            <Fragment set:html={icon('bell')} />
+            <b class="bell-badge" data-count="notices"></b>
+          </button>
+          <span class="demo-mark" title="Datos ficticios">Demo</span>
+        </div>
+      </header>
+
+      <main id="main" class="main" tabindex="-1">
+        <slot />
+      </main>
+
+      <nav class="tabbar" aria-label="Secciones" transition:persist="tabbar">
+        {
+          mobileTabs.map((item) => (
+            <a href={item.href} data-nav={item.view} aria-current={isActive(item, view) ? 'page' : undefined}>
+              <Fragment set:html={icon(item.icon)} />
+              {item.label}
+              {item.view === 'bandeja' && <b class="nav-count" data-count="inbox" />}
+            </a>
+          ))
+        }
+        <button type="button" data-action="more" aria-expanded="false" aria-controls="more-sheet">
+          <Fragment set:html={icon('more')} />
+          Más
+        </button>
+      </nav>
+    </div>
+
+    <div id="overlays" transition:persist="overlays">
+      <div class="overlay" data-overlay></div>
+      <section id="notif-panel" class="notif-panel" aria-label="Notificaciones" tabindex="-1">
+        <div class="card-head" style="padding:16px 20px 4px;margin:0">
+          <h2 style="font-size:18px">Notificaciones</h2>
+          <button class="btn btn-sm btn-ghost" type="button" data-action="read-all">Marcar todo leído</button>
+        </div>
+        <ul class="notif-list" data-notif-list></ul>
+      </section>
+
+      <section id="more-sheet" class="sheet" aria-label="Más secciones" tabindex="-1">
+        <div class="card-head" style="margin:0">
+          <h2 style="font-size:18px">Más</h2>
+          <button class="btn btn-sm btn-ghost btn-icon" type="button" data-action="close-sheet" aria-label="Cerrar"><Fragment set:html={icon('close')} /></button>
+        </div>
+        <div class="sheet-grid">
+          {
+            moreItems.map((item) => (
+              <a href={item.href} data-nav={item.view}>
+                <Fragment set:html={icon(item.icon)} />
+                {item.label}
+              </a>
+            ))
+          }
+        </div>
+        <div class="toolbar" style="justify-content:space-between;margin:0">
+          <div class="speed live" role="group" aria-label="Velocidad">
+            <button type="button" data-speed="1" aria-pressed="true">1x</button>
+            <button type="button" data-speed="4" aria-pressed="false">4x</button>
+            <button type="button" data-speed="10" aria-pressed="false">10x</button>
+          </div>
+          <button class="btn btn-sm" type="button" data-action="advance"><Fragment set:html={icon('forward')} />+1 h</button>
+          <button class="btn btn-sm" type="button" data-action="reset"><Fragment set:html={icon('reset')} />Reiniciar demo</button>
+        </div>
+      </section>
+
+      <dialog class="modal palette" id="palette" aria-label="Paleta de comandos">
+        <div class="palette-input-row">
+          <Fragment set:html={icon('search')} />
+          <input type="text" placeholder="Escribí un paciente, una vista o una acción" aria-label="Buscar" aria-controls="palette-list" aria-autocomplete="list" role="combobox" aria-expanded="true" autocomplete="off" spellcheck="false" />
+          <kbd>Esc</kbd>
+        </div>
+        <ul class="palette-list" id="palette-list" role="listbox" aria-label="Resultados"></ul>
+      </dialog>
+
+      <dialog class="modal" id="help" aria-labelledby="help-title">
+        <div class="modal-head">
+          <h2 id="help-title">Atajos de teclado</h2>
+          <button class="btn btn-sm btn-ghost btn-icon" type="button" data-close aria-label="Cerrar"><Fragment set:html={icon('close')} /></button>
+        </div>
+        <div class="modal-body">
+          <dl class="shortcuts">
+            <div><dt>Paleta de comandos</dt><dd><kbd>Ctrl</kbd><kbd>K</kbd></dd></div>
+            <div><dt>Esta ayuda</dt><dd><kbd>?</kbd></dd></div>
+            <div><dt>Pausar o seguir</dt><dd><kbd>P</kbd></dd></div>
+            <div><dt>Cambiar velocidad</dt><dd><kbd>S</kbd></dd></div>
+            <div><dt>Adelantar 1 h</dt><dd><kbd>+</kbd></dd></div>
+            <div><dt>Notificaciones</dt><dd><kbd>N</kbd></dd></div>
+            <div><dt>Ir a Inicio</dt><dd><kbd>G</kbd><kbd>I</kbd></dd></div>
+            <div><dt>Ir a Bandeja</dt><dd><kbd>G</kbd><kbd>B</kbd></dd></div>
+            <div><dt>Ir a Agenda</dt><dd><kbd>G</kbd><kbd>A</kbd></dd></div>
+            <div><dt>Ir a Pacientes</dt><dd><kbd>G</kbd><kbd>P</kbd></dd></div>
+            <div><dt>Ir a Automatizaciones</dt><dd><kbd>G</kbd><kbd>F</kbd></dd></div>
+            <div><dt>Ir a Plantillas</dt><dd><kbd>G</kbd><kbd>T</kbd></dd></div>
+            <div><dt>Ir a Campañas</dt><dd><kbd>G</kbd><kbd>C</kbd></dd></div>
+            <div><dt>Ir a Métricas</dt><dd><kbd>G</kbd><kbd>M</kbd></dd></div>
+            <div><dt>Buscar en la vista</dt><dd><kbd>/</kbd></dd></div>
+            <div><dt>Cerrar paneles</dt><dd><kbd>Esc</kbd></dd></div>
+          </dl>
+          <p class="muted small">En el editor de flujos: flechas para mover el nodo elegido, Supr para borrarlo, Enter para editarlo.</p>
+        </div>
+      </dialog>
+
+      <dialog class="modal" id="confirm-reset" aria-labelledby="reset-title">
+        <div class="modal-head">
+          <h2 id="reset-title">Reiniciar la demo</h2>
+        </div>
+        <div class="modal-body">
+          <p>Se borran los cambios guardados en este navegador y la clínica vuelve al lunes 16 a las 09:12.</p>
+        </div>
+        <div class="modal-foot">
+          <button class="btn" type="button" data-close>Cancelar</button>
+          <button class="btn btn-primary" type="button" data-action="reset-confirm">Reiniciar</button>
+        </div>
+      </dialog>
+
+      <div class="toasts" role="status" aria-live="polite" data-toasts></div>
+    </div>
+
+    <script>
+      import '../scripts/app/main';
+    </script>
+  </body>
+</html>

@@ -1,0 +1,78 @@
+---
+import Head from '../components/Head.astro';
+import Board from '../components/landing/Board.astro';
+import Confirm from '../components/landing/Confirm.astro';
+import Flow from '../components/landing/Flow.astro';
+import Hero from '../components/landing/Hero.astro';
+import Inbox from '../components/landing/Inbox.astro';
+import Timeline from '../components/landing/Timeline.astro';
+import '../styles/global.css';
+import '../styles/landing.css';
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <Head
+      title="Recepta · La recepción que trabaja sola (demo)"
+      description="Demo de recordatorios, confirmaciones y consultas automáticas para Clínica San Martín, Rosario. Datos ficticios: nada se envía de verdad."
+    />
+    <script is:inline>
+      (function () {
+        var c = document.documentElement.classList;
+        c.add('js');
+        var q = location.search;
+        if (/[?&]showcase/.test(q)) c.add('showcase');
+        if (/[?&]poster/.test(q)) c.add('poster');
+      })();
+    </script>
+  </head>
+  <body class="lp">
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+    <header class="lp-bar">
+      <a class="lp-brand" href="/">
+        <span class="lp-mark" aria-hidden="true">R</span>
+        <span>Recepta <span class="lp-brand-sub">para Clínica San Martín</span></span>
+      </a>
+      <span class="demo-mark lp-demo" title="Datos ficticios: nada se envía de verdad">Demo<span class="lp-demo-long"> · datos ficticios</span></span>
+      <nav class="lp-nav" aria-label="Secciones">
+        <a href="#bandeja">Bandeja</a>
+        <a href="#confirmaciones">Confirmaciones</a>
+        <a href="#flujo">Flujos</a>
+        <a href="#resultados">Resultados</a>
+      </nav>
+      <a class="btn btn-primary btn-sm" href="/app/">Abrir la demo</a>
+    </header>
+
+    <main id="contenido">
+      <Hero />
+      <Inbox />
+      <Confirm />
+      <Flow />
+      <Board />
+      <Timeline />
+
+      <section class="closing" aria-labelledby="closing-title">
+        <h2 id="closing-title">Mirala trabajar un día entero</h2>
+        <p>
+          La demo completa tiene bandeja, pacientes, agenda, flujos, plantillas, campañas y métricas, con la clínica
+          funcionando en vivo. Podés pausarla, acelerarla o escribir como paciente.
+        </p>
+        <a class="btn btn-accent btn-lg" href="/app/">Abrir la demo en vivo</a>
+      </section>
+    </main>
+
+    <footer class="lp-foot">
+      <p class="lp-foot-name">Recepta</p>
+      <p>
+        Demo de portfolio. Clínica San Martín (Rosario), sus profesionales y sus pacientes son ficticios. No se envía
+        ningún mensaje real: no hay WhatsApp, HubSpot ni ningún servicio externo; todo corre en tu navegador.
+      </p>
+      <p><a href="/app/">Abrir la demo</a> · <a href="/?showcase">Modo vitrina</a></p>
+    </footer>
+
+    <script>
+      import '../scripts/landing/main';
+    </script>
+  </body>
+</html>

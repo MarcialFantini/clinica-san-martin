@@ -1,0 +1,44 @@
+---
+import Head from '../components/Head.astro';
+import '../styles/global.css';
+import '../styles/landing.css';
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <Head title="Página no encontrada · Recepta (demo)" description="Esta página no existe en la demo de Recepta." />
+  </head>
+  <body class="lp">
+    <header class="lp-bar">
+      <a class="lp-brand" href="/">
+        <span class="lp-mark" aria-hidden="true">R</span>
+        <span>Recepta <span class="lp-brand-sub">para Clínica San Martín</span></span>
+      </a>
+      <span class="demo-mark lp-demo" title="Datos ficticios: nada se envía de verdad">Demo<span class="lp-demo-long"> · datos ficticios</span></span>
+    </header>
+    <main class="nf">
+      <h1>Este turno no existe</h1>
+      <p>La página que buscás no está en la demo. Podés volver a la presentación o abrir la clínica en vivo.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary btn-lg" href="/app/">Abrir la demo en vivo</a>
+        <a class="btn btn-lg" href="/">Ver la presentación</a>
+      </div>
+    </main>
+    <style>
+      .nf {
+        padding: 12vh var(--pad) 20vh;
+      }
+      .nf h1 {
+        font-size: clamp(44px, 7vw, 96px);
+        font-weight: 760;
+        letter-spacing: -0.045em;
+      }
+      .nf p {
+        margin-top: 20px;
+        font-size: 19px;
+        max-width: 34em;
+      }
+    </style>
+  </body>
+</html>

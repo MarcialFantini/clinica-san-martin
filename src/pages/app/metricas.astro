@@ -1,0 +1,224 @@
+---
+import AppLayout from '../../layouts/AppLayout.astro';
+---
+
+<AppLayout view="metricas" title="Métricas">
+  <div data-view-root class="metrics-view">
+    <header class="page-head">
+      <div>
+        <h1>Métricas</h1>
+        <p>Lo que la automatización le devuelve a la clínica, día por día. Los números se mueven con la simulación.</p>
+      </div>
+    </header>
+
+    <section class="kpis" aria-label="Resumen">
+      <div class="kpi featured"><span class="kpi-label">Horas de recepción liberadas</span><span class="kpi-value" data-k="hours">96</span><p class="kpi-note">este mes</p></div>
+      <div class="kpi"><span class="kpi-label">Tasa de confirmación</span><span class="kpi-value" data-k="rate">—</span><p class="kpi-note">últimos 7 días</p></div>
+      <div class="kpi"><span class="kpi-label">Primera respuesta</span><span class="kpi-value" data-k="resp">—</span><p class="kpi-note">promedio, últimos 7 días</p></div>
+      <div class="kpi"><span class="kpi-label">Turnos recuperados</span><span class="kpi-value" data-k="saved">—</span><p class="kpi-note">reprogramados en vez de perdidos</p></div>
+    </section>
+
+    <div class="m-grid">
+      <section class="card m-wide" aria-labelledby="c1-title">
+        <div class="card-head">
+          <h2 id="c1-title">Recordatorios y confirmaciones por día</h2>
+          <ul class="legend m-legend" aria-label="Series">
+            <li><i style="background:var(--c1)"></i>Recordatorios</li>
+            <li><i style="background:var(--c2)"></i>Confirmaciones</li>
+          </ul>
+        </div>
+        <div class="chart" data-chart="days"><span class="skeleton" style="height:240px"></span></div>
+        <details class="m-table"><summary>Ver datos en tabla</summary><div data-table="days"></div></details>
+      </section>
+
+      <section class="card" aria-labelledby="c2-title">
+        <div class="card-head"><h2 id="c2-title">Tasa de confirmación</h2></div>
+        <div class="chart" data-chart="rate"><span class="skeleton" style="height:200px"></span></div>
+        <details class="m-table"><summary>Ver datos en tabla</summary><div data-table="rate"></div></details>
+      </section>
+
+      <section class="card" aria-labelledby="c3-title">
+        <div class="card-head"><h2 id="c3-title">Primera respuesta a una consulta</h2></div>
+        <div data-chart="resp"><span class="skeleton" style="height:200px"></span></div>
+      </section>
+
+      <section class="card m-wide" aria-labelledby="c4-title">
+        <div class="card-head"><h2 id="c4-title">Consultas por especialidad</h2><span class="small muted">conversaciones abiertas en la bandeja</span></div>
+        <div data-chart="spec"><span class="skeleton" style="height:260px"></span></div>
+      </section>
+    </div>
+    <div class="m-tip" role="tooltip" data-tip hidden></div>
+  </div>
+</AppLayout>
+
+<style is:global>
+  .metrics-view {
+    --c1: #236f9e;
+    --c2: #22a07f;
+  }
+  .m-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .m-wide {
+    grid-column: 1 / -1;
+  }
+  .m-legend {
+    margin: 0;
+  }
+  .chart svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .chart text {
+    font-family: var(--font-text);
+    font-size: 12px;
+    fill: var(--ink-3);
+  }
+  .chart .grid line {
+    stroke: var(--surface-2);
+  }
+  .chart .axis line {
+    stroke: var(--line);
+  }
+  .chart .bar {
+    transition: opacity var(--dur-2);
+  }
+  .chart g[tabindex]:focus {
+    outline: none;
+  }
+  .chart g[tabindex]:focus .hit,
+  .chart g[tabindex]:hover .hit {
+    fill: var(--surface-2);
+  }
+  .chart .hit {
+    fill: transparent;
+  }
+  .chart .today text.day {
+    fill: var(--ink);
+    font-weight: 700;
+  }
+  .chart .line {
+    fill: none;
+    stroke: var(--c1);
+    stroke-width: 2.5;
+    stroke-linejoin: round;
+  }
+  .chart .dot {
+    fill: var(--c1);
+    stroke: var(--surface);
+    stroke-width: 2;
+  }
+  .chart .label {
+    fill: var(--ink);
+    font-weight: 700;
+  }
+  .m-tip {
+    position: fixed;
+    z-index: 80;
+    pointer-events: none;
+    padding: 8px 12px;
+    border-radius: var(--r-md);
+    background: var(--petrol-deep);
+    color: #fff;
+    font-size: 13.5px;
+    line-height: 1.45;
+    box-shadow: 0 12px 30px rgb(7 32 40 / 0.25);
+    transform: translate(-50%, calc(-100% - 12px));
+    white-space: nowrap;
+  }
+  .m-tip i {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 3px;
+    margin-right: 6px;
+  }
+  .m-table {
+    margin-top: 10px;
+    font-size: 14px;
+  }
+  .m-table summary {
+    cursor: pointer;
+    color: var(--petrol);
+    font-weight: 650;
+    width: fit-content;
+  }
+  .m-table table {
+    margin-top: 8px;
+  }
+  .hbars {
+    display: grid;
+    gap: 10px;
+  }
+  .hbar {
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr) 56px;
+    gap: 12px;
+    align-items: center;
+    font-size: 14px;
+  }
+  .hbar .track {
+    height: 14px;
+    border-radius: 0 4px 4px 0;
+    background: var(--surface-2);
+    overflow: hidden;
+  }
+  .hbar .fill {
+    height: 100%;
+    border-radius: 0 4px 4px 0;
+    background: var(--c1);
+    transform-origin: left;
+    transition: transform 600ms var(--ease-out);
+  }
+  .hbar b {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+  .resp-compare {
+    display: grid;
+    gap: 18px;
+  }
+  .resp-row .resp-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+  .resp-row b {
+    font-family: var(--font-display);
+    font-size: 30px;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .resp-row .track {
+    height: 16px;
+    border-radius: 0 4px 4px 0;
+    background: var(--surface-2);
+  }
+  .resp-row .fill {
+    height: 100%;
+    border-radius: 0 4px 4px 0;
+    transform-origin: left;
+    transition: transform 600ms var(--ease-out);
+  }
+  @media (max-width: 1100px) {
+    .m-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 720px) {
+    .hbar {
+      grid-template-columns: 96px minmax(0, 1fr) 40px;
+      font-size: 13px;
+    }
+    .metrics-view .card-head {
+      flex-wrap: wrap;
+    }
+  }
+</style>

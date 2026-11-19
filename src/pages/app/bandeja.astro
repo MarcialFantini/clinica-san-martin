@@ -1,0 +1,488 @@
+---
+import AppLayout from '../../layouts/AppLayout.astro';
+import { SPECIALTIES } from '../../data/catalog';
+import { icon } from '../../lib/icons';
+---
+
+<AppLayout view="bandeja" title="Bandeja">
+  <div data-view-root class="inbox-view">
+    <header class="page-head">
+      <div>
+        <h1>Bandeja</h1>
+        <p>Cada consulta llega clasificada por especialidad y derivada a su profesional. Las que no se entienden quedan para recepción.</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-primary" type="button" data-action="simulate"><Fragment set:html={icon('send')} />Simular paciente</button>
+      </div>
+    </header>
+
+    <div class="inbox" data-inbox>
+      <section class="inbox-list" aria-label="Conversaciones">
+        <div class="inbox-filters">
+          <input class="input" type="search" placeholder="Buscar por nombre o texto" aria-label="Buscar conversaciones" data-search />
+          <div class="chips" role="group" aria-label="Estado">
+            <button class="chip" type="button" data-filter="todas" aria-pressed="true">Todas</button>
+            <button class="chip" type="button" data-filter="sinleer" aria-pressed="false">Sin leer</button>
+            <button class="chip" type="button" data-filter="atencion" aria-pressed="false">Para recepción</button>
+            <button class="chip" type="button" data-filter="resuelta" aria-pressed="false">Resueltas</button>
+          </div>
+          <select class="select" aria-label="Especialidad" data-spec>
+            <option value="">Todas las especialidades</option>
+            {SPECIALTIES.map((s) => <option value={s.id}>{s.name}</option>)}
+          </select>
+        </div>
+        <p class="inbox-count small muted" data-count-label aria-live="polite"></p>
+        <ul class="conv-list" data-list>
+          {Array.from({ length: 7 }).map(() => (
+            <li class="conv-skel"><span class="skeleton" style="width:40px;height:40px;border-radius:50%" /><span><span class="skeleton sk-line" style="width:50%" /><span class="skeleton sk-line" /></span></li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="chat" aria-label="Conversación" data-chat>
+        <div class="empty chat-empty">
+          <Fragment set:html={icon('inbox', 'icon big-icon')} />
+          <p>Elegí una conversación para verla.</p>
+        </div>
+      </section>
+
+      <aside class="chat-side" aria-label="Datos del paciente" data-side></aside>
+    </div>
+
+    <dialog class="modal" id="simulate" aria-labelledby="sim-title">
+      <form method="dialog" data-sim-form>
+        <div class="modal-head">
+          <h2 id="sim-title">Simular un paciente</h2>
+          <button class="btn btn-sm btn-ghost btn-icon" type="button" data-close aria-label="Cerrar"><Fragment set:html={icon('close')} /></button>
+        </div>
+        <div class="modal-body">
+          <p class="muted">Escribí como si fueras un paciente. Recepta clasifica el mensaje, elige profesional y responde al instante.</p>
+          <div class="field">
+            <label for="sim-name">Tu nombre</label>
+            <input class="input" id="sim-name" name="name" value="Paciente de prueba" maxlength="40" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="sim-text">Mensaje</label>
+            <textarea class="textarea" id="sim-text" name="text" required maxlength="280" placeholder="Por ejemplo: me duele la rodilla desde el partido del domingo"></textarea>
+          </div>
+          <div class="chips" aria-label="Ejemplos">
+            <button class="chip" type="button" data-example="Tengo palpitaciones cuando subo escaleras">Palpitaciones</button>
+            <button class="chip" type="button" data-example="Mi hija tiene fiebre y tos hace dos días">Hija con fiebre</button>
+            <button class="chip" type="button" data-example="Me salió un lunar nuevo en la espalda">Lunar nuevo</button>
+            <button class="chip" type="button" data-example="¿Aceptan mi obra social?">Obra social</button>
+          </div>
+          <p class="small muted" data-sim-preview aria-live="polite"></p>
+        </div>
+        <div class="modal-foot">
+          <button class="btn" type="button" data-close>Cancelar</button>
+          <button class="btn btn-primary" type="submit"><Fragment set:html={icon('send')} />Enviar como paciente</button>
+        </div>
+      </form>
+    </dialog>
+  </div>
+</AppLayout>
+
+<style is:global>
+  .inbox-view .page-head {
+    padding-bottom: 14px;
+  }
+  .inbox {
+    display: grid;
+    grid-template-columns: 360px minmax(0, 1fr) 280px;
+    gap: 12px;
+    height: calc(100dvh - 64px - 130px);
+    min-height: 520px;
+  }
+  .inbox-list,
+  .chat,
+  .chat-side {
+    background: var(--surface);
+    border-radius: var(--r-lg);
+    min-height: 0;
+    min-width: 0;
+  }
+  .inbox-list {
+    display: flex;
+    flex-direction: column;
+  }
+  .inbox-filters {
+    display: grid;
+    gap: 10px;
+    padding: 14px 14px 6px;
+  }
+  .inbox-count {
+    padding: 4px 16px 8px;
+  }
+  .conv-list {
+    list-style: none;
+    margin: 0;
+    padding: 0 8px 8px;
+    overflow: auto;
+    flex: 1;
+  }
+  .conv-skel {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 12px;
+    padding: 10px 8px;
+  }
+  .conv-item {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    gap: 4px 12px;
+    align-items: start;
+    width: 100%;
+    padding: 10px 8px;
+    border: 0;
+    border-radius: var(--r-md);
+    background: transparent;
+    text-align: left;
+    text-decoration: none;
+    transition: background-color var(--dur-2);
+  }
+  .conv-item:hover {
+    background: var(--ground);
+  }
+  .conv-item[aria-current='true'] {
+    background: var(--surface-2);
+  }
+  .conv-item .avatar {
+    width: 40px;
+    height: 40px;
+    grid-row: span 2;
+  }
+  .conv-name {
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .conv-item.unread .conv-name::after {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-left: 6px;
+    border-radius: 50%;
+    background: var(--blue);
+    vertical-align: middle;
+  }
+  .conv-time {
+    font-size: 12.5px;
+    color: var(--ink-3);
+    white-space: nowrap;
+  }
+  .conv-snippet {
+    grid-column: 2 / 4;
+    font-size: 14px;
+    color: var(--ink-2);
+  }
+  .conv-meta {
+    grid-column: 2 / 4;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .conv-list li.flash .conv-item {
+    animation: flash 1.2s var(--ease-out);
+  }
+  .conv-list li.enter {
+    animation: slidein 480ms var(--ease-out);
+  }
+
+  /* Chat */
+  .chat {
+    display: flex;
+    flex-direction: column;
+  }
+  .chat-empty {
+    height: 100%;
+    align-content: center;
+  }
+  .icon.big-icon {
+    width: 44px;
+    height: 44px;
+    stroke-width: 1.4;
+  }
+  .chat-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--surface-2);
+    flex-wrap: wrap;
+  }
+  .chat-head h2 {
+    font-size: 19px;
+  }
+  .chat-head .grow {
+    flex: 1 1 180px;
+    min-width: 0;
+  }
+  .chat-back {
+    display: none;
+  }
+  .chat-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-left: auto;
+  }
+  .chat-actions .select {
+    min-height: 34px;
+    padding: 4px 10px;
+    width: auto;
+    max-width: 200px;
+    font-size: 14px;
+  }
+  .messages {
+    list-style: none;
+    margin: 0;
+    padding: 16px;
+    overflow: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--ground);
+  }
+  .msg {
+    max-width: min(78%, 520px);
+    display: grid;
+    gap: 4px;
+  }
+  .msg .bubble {
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 15px;
+    line-height: 1.45;
+    background: var(--surface);
+    border-bottom-left-radius: 4px;
+  }
+  .msg.from-bot,
+  .msg.from-recepcion {
+    align-self: flex-end;
+  }
+  .msg.from-bot .bubble {
+    background: var(--petrol);
+    color: #fff;
+    border-radius: 16px;
+    border-bottom-right-radius: 4px;
+  }
+  .msg.from-recepcion .bubble {
+    background: var(--aqua-soft);
+    color: var(--ink);
+    border-radius: 16px;
+    border-bottom-right-radius: 4px;
+  }
+  .msg-meta {
+    font-size: 12px;
+    color: var(--ink-3);
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .msg.from-bot .msg-meta,
+  .msg.from-recepcion .msg-meta {
+    justify-content: flex-end;
+  }
+  .msg-meta .icon {
+    width: 13px;
+    height: 13px;
+  }
+  .quick {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .quick span {
+    padding: 4px 12px;
+    border-radius: var(--r-pill);
+    background: var(--surface);
+    color: var(--petrol);
+    font-size: 13.5px;
+    font-weight: 700;
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+  .msg.pop {
+    animation: msgpop 420ms var(--ease-spring);
+  }
+  .msg.from-paciente.pop {
+    transform-origin: bottom left;
+  }
+  .msg.from-bot.pop,
+  .msg.from-recepcion.pop {
+    transform-origin: bottom right;
+  }
+  @keyframes msgpop {
+    from { opacity: 0; transform: translateY(10px) scale(0.92); }
+    to { opacity: 1; transform: none; }
+  }
+  .sys-note {
+    align-self: center;
+    max-width: 92%;
+    padding: 8px 14px;
+    border-radius: var(--r-md);
+    background: var(--surface-2);
+    color: var(--ink-2);
+    font-size: 13.5px;
+    text-align: center;
+  }
+  .sys-note .tag {
+    animation: tagfly 700ms var(--ease-spring);
+  }
+  @keyframes tagfly {
+    from { opacity: 0; transform: translate(-40px, -16px) scale(0.6) rotate(-8deg); }
+    to { opacity: 1; transform: none; }
+  }
+  .typing {
+    align-self: flex-start;
+    display: flex;
+    gap: 4px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    background: var(--surface);
+  }
+  .typing i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--ink-3);
+    animation: dots 1s infinite;
+  }
+  .typing i:nth-child(2) { animation-delay: 0.15s; }
+  .typing i:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes dots {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+    30% { transform: translateY(-4px); opacity: 1; }
+  }
+  .composer {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    padding: 12px;
+    border-top: 1px solid var(--surface-2);
+  }
+  .composer .textarea {
+    min-height: 44px;
+    max-height: 140px;
+    resize: none;
+  }
+  .composer .select {
+    width: auto;
+    max-width: 170px;
+  }
+
+  /* Side */
+  .chat-side {
+    padding: 18px;
+    overflow: auto;
+  }
+  .chat-side h2 {
+    font-size: 18px;
+    margin-top: 10px;
+  }
+  .side-list {
+    list-style: none;
+    margin: 12px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+    font-size: 14.5px;
+  }
+  .side-list span {
+    display: block;
+    color: var(--ink-3);
+    font-size: 13px;
+  }
+  .side-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+
+  @media (max-width: 1280px) {
+    .inbox {
+      grid-template-columns: 320px minmax(0, 1fr);
+    }
+    .chat-side {
+      display: none;
+    }
+  }
+  @media (max-width: 720px) {
+    .inbox {
+      display: block;
+      height: auto;
+      min-height: 0;
+    }
+    .inbox-list {
+      background: transparent;
+    }
+    .inbox-filters {
+      padding: 0 0 6px;
+    }
+    .inbox-filters .chips {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      margin: 0 -16px;
+      padding: 0 16px;
+    }
+    .inbox-filters .chip {
+      flex: none;
+    }
+    .inbox-count {
+      padding: 4px 0 8px;
+    }
+    .conv-list {
+      padding: 0;
+      overflow: visible;
+    }
+    .conv-item {
+      background: var(--surface);
+      margin-bottom: 6px;
+      padding: 12px;
+    }
+    .chat {
+      display: none;
+    }
+    .inbox.has-chat .inbox-list {
+      display: none;
+    }
+    .inbox.has-chat .chat {
+      display: flex;
+      position: fixed;
+      inset: 56px 0 calc(64px + env(safe-area-inset-bottom)) 0;
+      z-index: 25;
+      border-radius: 0;
+    }
+    .inbox.has-chat ~ * {
+      display: none;
+    }
+    .chat-back {
+      display: inline-flex;
+    }
+    .chat-head {
+      padding: 10px 12px;
+      gap: 8px;
+    }
+    .chat-head h2 {
+      font-size: 17px;
+    }
+    .chat-actions {
+      width: 100%;
+    }
+    .chat-actions .select {
+      flex: 1;
+      max-width: none;
+    }
+    .msg {
+      max-width: 88%;
+    }
+    .composer .select {
+      display: none;
+    }
+  }
+</style>

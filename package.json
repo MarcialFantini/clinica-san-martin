@@ -1,0 +1,28 @@
+{
+  "name": "automatizacion-crm-whatsapp",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev --port 4621",
+    "build": "astro build",
+    "preview": "astro preview --port 4621",
+    "astro": "astro",
+    "check": "astro check",
+    "poster": "node scripts/poster.mjs",
+    "test:e2e": "node scripts/e2e.mjs && node scripts/interactions.mjs",
+    "test:shots": "node scripts/e2e.mjs --shots"
+  },
+  "dependencies": {
+    "astro": "^7.4.12",
+    "gsap": "^3.15.1"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "playwright": "^1.65.1",
+    "typescript": "^5.9.3"
+  }
+}

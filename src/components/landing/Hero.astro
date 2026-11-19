@@ -1,0 +1,32 @@
+---
+// Scene 1: the agenda of 40 professionals filling with an accelerated clock.
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero-copy">
+    <h1 id="hero-title">La recepción que trabaja sola</h1>
+    <p class="hero-lead">
+      Recordatorios, confirmaciones y consultas de Clínica San Martín se mueven sin que nadie las toque. Acá ves un día
+      de 40 profesionales en doce segundos.
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-lg" href="/app/">Abrir la demo en vivo</a>
+      <a class="btn btn-lg" href="#bandeja">Ver cómo funciona</a>
+    </div>
+  </div>
+
+  <figure class="hero-visual" aria-labelledby="agenda-caption">
+    <div class="agenda-head">
+      <p class="agenda-clock"><span data-hero-day>lunes 16</span> <b class="num" data-hero-time>08:00</b></p>
+      <button class="btn btn-accent btn-sm" type="button" data-hero-forward>Adelantar 24 h</button>
+    </div>
+    <div class="agenda-canvas-wrap">
+      <canvas data-hero-canvas aria-hidden="true"></canvas>
+    </div>
+    <figcaption id="agenda-caption" class="agenda-stats">
+      <span><b class="num" data-stat="booked">412</b> turnos en la agenda de mañana</span>
+      <span><b class="num" data-stat="sent">0</b> recordatorios enviados</span>
+      <span><b class="num" data-stat="confirmed">0</b> confirmados</span>
+    </figcaption>
+  </figure>
+</section>

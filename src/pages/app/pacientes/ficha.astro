@@ -1,0 +1,224 @@
+---
+import AppLayout from '../../../layouts/AppLayout.astro';
+import { icon } from '../../../lib/icons';
+---
+
+<AppLayout view="ficha" title="Ficha de paciente">
+  <div data-view-root class="ficha-view">
+    <nav class="crumbs small" aria-label="Ruta"><a href="/app/pacientes/">Pacientes</a> <span aria-hidden="true">/</span> <span data-crumb>Ficha</span></nav>
+    <header class="page-head ficha-head" data-head>
+      <div class="ficha-id">
+        <span class="skeleton" style="width:64px;height:64px;border-radius:50%"></span>
+        <div><h1>Ficha de paciente</h1><p><span class="skeleton sk-line" style="width:240px"></span></p></div>
+      </div>
+      <div class="page-actions">
+        <button class="btn" type="button" data-action="message"><Fragment set:html={icon('send')} />Enviar mensaje</button>
+        <button class="btn btn-primary" type="button" data-action="book"><Fragment set:html={icon('calendar')} />Dar turno</button>
+      </div>
+    </header>
+
+    <div class="ficha-grid">
+      <section class="card" aria-labelledby="appts-title">
+        <div class="card-head"><h2 id="appts-title">Turnos</h2></div>
+        <div class="appts" data-appts><span class="skeleton sk-line"></span><span class="skeleton sk-line"></span></div>
+      </section>
+
+      <section class="card" aria-labelledby="tl-title">
+        <div class="card-head"><h2 id="tl-title">Mensajes y automatizaciones</h2></div>
+        <ol class="timeline" data-timeline><li><span class="skeleton sk-line"></span></li></ol>
+      </section>
+
+      <section class="card" aria-labelledby="data-title">
+        <div class="card-head"><h2 id="data-title">Datos</h2></div>
+        <dl class="data-list" data-data></dl>
+        <h3 class="sub">Etiquetas</h3>
+        <div class="chips" data-tags></div>
+        <form class="tag-form" data-tag-form>
+          <label class="sr-only" for="new-tag">Nueva etiqueta</label>
+          <input class="input" id="new-tag" list="tag-suggestions" placeholder="Agregar etiqueta" maxlength="28" autocomplete="off" />
+          <datalist id="tag-suggestions"><option>Paciente frecuente</option><option>Lista de espera</option><option>Prefiere mañana</option><option>Prefiere tarde</option><option>Requiere acompañante</option></datalist>
+          <button class="btn btn-sm" type="submit"><Fragment set:html={icon('plus')} />Agregar</button>
+        </form>
+        <h3 class="sub"><label for="notes">Notas internas</label></h3>
+        <textarea class="textarea" id="notes" data-notes placeholder="Visible solo para recepción"></textarea>
+        <p class="small muted" data-saved aria-live="polite"></p>
+      </section>
+    </div>
+
+    <dialog class="modal" id="book" aria-labelledby="book-title">
+      <form method="dialog" data-book-form>
+        <div class="modal-head">
+          <h2 id="book-title">Dar turno</h2>
+          <button class="btn btn-sm btn-ghost btn-icon" type="button" data-close aria-label="Cerrar"><Fragment set:html={icon('close')} /></button>
+        </div>
+        <div class="modal-body">
+          <div class="field"><label for="book-pro">Profesional</label><select class="select" id="book-pro" name="pro" data-book-pro></select></div>
+          <div class="field"><label for="book-slot">Horario libre</label><select class="select" id="book-slot" name="slot" data-book-slot></select></div>
+          <p class="small muted">Recepta envía el recordatorio 24 h antes y actualiza la agenda con la respuesta.</p>
+        </div>
+        <div class="modal-foot">
+          <button class="btn" type="button" data-close>Cancelar</button>
+          <button class="btn btn-primary" type="submit">Reservar</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="modal" id="message" aria-labelledby="msg-title">
+      <form method="dialog" data-msg-form>
+        <div class="modal-head">
+          <h2 id="msg-title">Enviar mensaje</h2>
+          <button class="btn btn-sm btn-ghost btn-icon" type="button" data-close aria-label="Cerrar"><Fragment set:html={icon('close')} /></button>
+        </div>
+        <div class="modal-body">
+          <div class="field"><label for="msg-text">Mensaje</label><textarea class="textarea" id="msg-text" required maxlength="400"></textarea></div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn" type="button" data-close>Cancelar</button>
+          <button class="btn btn-primary" type="submit"><Fragment set:html={icon('send')} />Enviar</button>
+        </div>
+      </form>
+    </dialog>
+  </div>
+</AppLayout>
+
+<style is:global>
+  .crumbs {
+    padding-top: 10px;
+    color: var(--ink-3);
+  }
+  .crumbs a {
+    color: var(--petrol);
+    font-weight: 650;
+  }
+  .ficha-id {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+  }
+  .ficha-id .avatar {
+    width: 64px;
+    height: 64px;
+    font-size: 22px;
+  }
+  .ficha-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 0.9fr);
+    gap: 12px;
+    align-items: start;
+  }
+  .appt-list,
+  .timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .appt-list li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 10px;
+    padding: 10px 0;
+    border-top: 1px solid var(--surface-2);
+    font-size: 14.5px;
+  }
+  .appt-list li:first-child,
+  .timeline li:first-child {
+    border-top: 0;
+  }
+  .appt-list .when {
+    font-weight: 700;
+  }
+  .appt-list .actions {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 6px;
+  }
+  .appt-group {
+    font-family: var(--font-text);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0;
+    color: var(--ink-3);
+    padding: 12px 0 2px;
+  }
+  .appts {
+    min-height: 430px;
+  }
+  .timeline {
+    min-height: 420px;
+  }
+  .timeline li {
+    position: relative;
+    padding: 10px 0 10px 22px;
+    border-top: 1px solid var(--surface-2);
+    font-size: 14.5px;
+  }
+  .timeline li::before {
+    content: '';
+    position: absolute;
+    left: 2px;
+    top: 17px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--surface-3);
+  }
+  .timeline li.from-bot::before { background: var(--petrol); }
+  .timeline li.from-paciente::before { background: var(--aqua); }
+  .timeline li.from-recepcion::before { background: var(--amber); }
+  .timeline .who {
+    font-size: 13px;
+    color: var(--ink-3);
+  }
+  .data-list {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px 14px;
+    margin: 0;
+    font-size: 14.5px;
+  }
+  .data-list dt {
+    color: var(--ink-3);
+  }
+  .data-list dd {
+    margin: 0;
+  }
+  .sub {
+    font-family: var(--font-text);
+    font-size: 15px;
+    font-weight: 700;
+    margin: 18px 0 8px;
+    letter-spacing: 0;
+  }
+  .tag-remove {
+    border: 0;
+    background: transparent;
+    padding: 0 0 0 2px;
+    color: inherit;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .tag-form {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  @media (max-width: 1280px) {
+    .ficha-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+    .ficha-grid > :last-child {
+      grid-column: 1 / -1;
+    }
+  }
+  @media (max-width: 720px) {
+    .ficha-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .ficha-id .avatar {
+      width: 52px;
+      height: 52px;
+      font-size: 18px;
+    }
+  }
+</style>

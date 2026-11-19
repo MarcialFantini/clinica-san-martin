@@ -1,0 +1,107 @@
+---
+import AppLayout from '../../../layouts/AppLayout.astro';
+import { INSURANCES, SPECIALTIES } from '../../../data/catalog';
+import { icon } from '../../../lib/icons';
+---
+
+<AppLayout view="pacientes" title="Pacientes">
+  <div data-view-root class="patients-view">
+    <header class="page-head">
+      <div>
+        <h1>Pacientes</h1>
+        <p>Cada contacto con su historial de turnos, mensajes y automatizaciones. Los nuevos llegan solos desde la bandeja.</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-primary" type="button" data-action="new-patient"><Fragment set:html={icon('plus')} />Nuevo paciente</button>
+      </div>
+    </header>
+
+    <div class="card">
+      <div class="toolbar">
+        <input class="input" type="search" placeholder="Buscar por nombre, teléfono o código" aria-label="Buscar pacientes" data-search />
+        <select class="select" aria-label="Especialidad" data-spec>
+          <option value="">Todas las especialidades</option>
+          {SPECIALTIES.map((s) => <option value={s.id}>{s.name}</option>)}
+        </select>
+        <select class="select" aria-label="Etiqueta" data-tag>
+          <option value="">Todas las etiquetas</option>
+        </select>
+        <select class="select" aria-label="Ordenar por" data-sort>
+          <option value="contacto">Último contacto</option>
+          <option value="nombre">Nombre</option>
+          <option value="turno">Próximo turno</option>
+        </select>
+        <span class="small muted" data-count aria-live="polite"></span>
+      </div>
+      <table class="table stack patients-table">
+        <thead>
+          <tr>
+            <th scope="col">Paciente</th>
+            <th scope="col">Especialidad</th>
+            <th scope="col">Cobertura</th>
+            <th scope="col">Próximo turno</th>
+            <th scope="col">Último contacto</th>
+            <th scope="col">Etiquetas</th>
+          </tr>
+        </thead>
+        <tbody data-rows>
+          {Array.from({ length: 8 }).map(() => (
+            <tr><td colspan="6"><span class="skeleton sk-line" /></td></tr>
+          ))}
+        </tbody>
+      </table>
+      <p style="margin-top:14px;text-align:center"><button class="btn" type="button" data-more hidden>Mostrar más</button></p>
+    </div>
+
+    <dialog class="modal" id="new-patient" aria-labelledby="np-title">
+      <form method="dialog" data-new-form>
+        <div class="modal-head">
+          <h2 id="np-title">Nuevo paciente</h2>
+          <button class="btn btn-sm btn-ghost btn-icon" type="button" data-close aria-label="Cerrar"><Fragment set:html={icon('close')} /></button>
+        </div>
+        <div class="modal-body">
+          <div class="field"><label for="np-name">Nombre y apellido</label><input class="input" id="np-name" name="name" required maxlength="60" autocomplete="off" /></div>
+          <div class="field"><label for="np-phone">Teléfono</label><input class="input" id="np-phone" name="phone" value="+54 9 341 555-" maxlength="24" autocomplete="off" inputmode="tel" /></div>
+          <div class="field"><label for="np-spec">Especialidad principal</label>
+            <select class="select" id="np-spec" name="specialty">{SPECIALTIES.map((s) => <option value={s.id}>{s.name}</option>)}</select>
+          </div>
+          <div class="field"><label for="np-ins">Cobertura</label>
+            <select class="select" id="np-ins" name="insurance">{INSURANCES.map((s) => <option>{s}</option>)}</select>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn" type="button" data-close>Cancelar</button>
+          <button class="btn btn-primary" type="submit">Crear ficha</button>
+        </div>
+      </form>
+    </dialog>
+  </div>
+</AppLayout>
+
+<style is:global>
+  .patients-table .who {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .patients-table .who small {
+    display: block;
+    color: var(--ink-3);
+    font-size: 13px;
+  }
+  .tags-cell {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  @media (max-width: 720px) {
+    .patients-view .toolbar .input,
+    .patients-view .toolbar .select {
+      max-width: none;
+      width: 100%;
+    }
+    .patients-table td.who-cell {
+      padding-bottom: 6px;
+    }
+  }
+</style>

@@ -1,0 +1,84 @@
+---
+// Scene 4: a node flow that is edited by dragging and run with pulses along the connections.
+import { FLOW_DESKTOP, FLOW_EDGES, FLOW_NODES, edgePath } from './data';
+
+const L = FLOW_DESKTOP;
+const mid = (id: string) => {
+  const e = FLOW_EDGES.find((x) => x.id === id)!;
+  const a = L.pos[e.from]!;
+  const b = L.pos[e.to]!;
+  return { x: (a.x + b.x + L.nodeW) / 2, y: (a.y + b.y + L.nodeH) / 2 };
+};
+---
+
+<section id="flujo" class="scene flow-scene" aria-labelledby="flow-title" data-scene="flujo">
+  <div class="scene-intro">
+    <h2 id="flow-title">Un flujo que se edita arrastrando</h2>
+    <p>
+      Disparador, espera, mensaje y condición. Mové los nodos y las conexiones se acomodan; tocá Ejecutar y mirá el
+      pulso recorrer el camino que haría un paciente real.
+    </p>
+  </div>
+
+  <div class="flow-toolbar">
+    <button class="btn btn-primary" type="button" data-flow-run>Ejecutar</button>
+    <button class="btn" type="button" data-flow-reset>Ordenar</button>
+    <p class="flow-log" data-flow-log aria-live="polite">Listo para ejecutar.</p>
+  </div>
+
+  <div class="flow-canvas" data-flow-canvas>
+    <svg
+      data-flow-svg
+      viewBox={`0 0 ${L.width} ${L.height}`}
+      role="group"
+      aria-label="Diagrama del flujo de recordatorio. Cada nodo se puede mover con las flechas."
+    >
+      <g class="f-edges">
+        {
+          FLOW_EDGES.map((e) => (
+            <path class="f-edge" data-edge={e.id} d={edgePath(L.pos[e.from]!, L.pos[e.to]!, L.nodeW, L.nodeH)} />
+          ))
+        }
+      </g>
+      <g class="f-labels" aria-hidden="true">
+        {
+          FLOW_EDGES.filter((e) => e.label).map((e) => (
+            <g class="f-label" data-label={e.id} transform={`translate(${mid(e.id).x} ${mid(e.id).y})`}>
+              <rect x="-20" y="-13" width="40" height="26" rx="13" />
+              <text text-anchor="middle" y="5">{e.label}</text>
+            </g>
+          ))
+        }
+      </g>
+      <g class="f-nodes">
+        {
+          FLOW_NODES.map((n) => (
+            <g
+              class={`f-node k-${n.kind}`}
+              data-node={n.id}
+              tabindex="0"
+              role="button"
+              aria-label={`${n.kindLabel} ${n.title}. ${n.detail}. Usá las flechas para moverlo.`}
+              aria-roledescription="nodo movible"
+              transform={`translate(${L.pos[n.id]!.x} ${L.pos[n.id]!.y})`}
+            >
+              <rect class="f-box" width={L.nodeW} height={L.nodeH} rx="14" />
+              <rect class="f-accent" width="6" height={L.nodeH - 24} x="10" y="12" rx="3" />
+              <text class="f-kind" x="26" y="30" aria-hidden="true">{n.kindLabel}</text>
+              <text class="f-title" x="26" y="54" aria-hidden="true">{n.title}</text>
+            </g>
+          ))
+        }
+      </g>
+      <g class="f-pulses" aria-hidden="true" data-pulses></g>
+    </svg>
+  </div>
+  <p class="flow-hint">Con teclado: Tab para elegir un nodo, flechas para moverlo (Mayús para pasos largos).</p>
+  <ol class="sr-only">
+    <li>Disparador: turno reservado.</li>
+    <li>Espera hasta 24 horas antes del turno.</li>
+    <li>Mensaje: recordatorio con Confirmo y Reprogramo.</li>
+    <li>Condición: ¿respondió? Si responde, se actualiza la agenda.</li>
+    <li>Si no responde, segundo aviso tres horas antes y, si sigue sin respuesta, aviso a recepción.</li>
+  </ol>
+</section>

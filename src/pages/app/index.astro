@@ -1,0 +1,202 @@
+---
+import AppLayout from '../../layouts/AppLayout.astro';
+import { icon } from '../../lib/icons';
+---
+
+<AppLayout view="panel" title="Inicio">
+  <div data-view-root class="panel">
+    <header class="page-head">
+      <div>
+        <h1>Buen día, recepción</h1>
+        <p>Lo que Recepta resolvió sola mientras atendías el mostrador. Todo se actualiza en vivo.</p>
+      </div>
+      <div class="page-actions">
+        <a class="btn" href="/app/bandeja/?simular=1"><Fragment set:html={icon('send')} />Simular paciente</a>
+        <button class="btn btn-primary" type="button" data-action="advance-day"><Fragment set:html={icon('forward')} />Adelantar 24 h</button>
+      </div>
+    </header>
+
+    <section class="kpis" aria-label="Indicadores del mes">
+      <div class="kpi featured">
+        <span class="kpi-label">Horas de recepción liberadas</span>
+        <span class="kpi-value" data-kpi="hours">96</span>
+        <p class="kpi-note">este mes, a 2,5 min por mensaje</p>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Recordatorios del mes</span>
+        <span class="kpi-value" data-kpi="reminders">2.184</span>
+        <p class="kpi-note" data-kpi-note="reminders">enviados solos</p>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Confirmación</span>
+        <span class="kpi-value" data-kpi="rate">78 %</span>
+        <p class="kpi-note" data-kpi-note="rate">de los recordatorios</p>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Respondidas en menos de 5 min</span>
+        <span class="kpi-value" data-kpi="fast">1.391</span>
+        <p class="kpi-note" data-kpi-note="fast">consultas este mes</p>
+      </div>
+    </section>
+
+    <div class="panel-grid">
+      <section class="card today" aria-labelledby="today-title">
+        <div class="card-head">
+          <h2 id="today-title">Agenda de hoy</h2>
+          <a href="/app/agenda/">Ver agenda</a>
+        </div>
+        <div data-slot="today">
+          <span class="skeleton sk-line" style="width:60%"></span>
+          <span class="skeleton" style="height:18px;margin:14px 0"></span>
+          <span class="skeleton sk-block"></span>
+        </div>
+      </section>
+
+      <section class="card feed-card" aria-labelledby="feed-title">
+        <div class="card-head">
+          <h2 id="feed-title">Actividad en vivo</h2>
+          <span class="status st-derivada" data-feed-state>en vivo</span>
+        </div>
+        <ul class="feed" data-slot="feed" aria-live="off">
+          <li><span class="skeleton" style="width:30px;height:30px;border-radius:50%"></span><span class="skeleton sk-line"></span><span></span></li>
+          <li><span class="skeleton" style="width:30px;height:30px;border-radius:50%"></span><span class="skeleton sk-line"></span><span></span></li>
+          <li><span class="skeleton" style="width:30px;height:30px;border-radius:50%"></span><span class="skeleton sk-line"></span><span></span></li>
+        </ul>
+      </section>
+
+      <section class="card" aria-labelledby="flows-title">
+        <div class="card-head">
+          <h2 id="flows-title">Automatizaciones trabajando</h2>
+          <a href="/app/flujos/">Ver todas</a>
+        </div>
+        <ul class="flow-mini" data-slot="flows">
+          <li><span class="skeleton sk-line"></span></li>
+          <li><span class="skeleton sk-line"></span></li>
+          <li><span class="skeleton sk-line"></span></li>
+        </ul>
+      </section>
+
+      <section class="card" aria-labelledby="inbox-title">
+        <div class="card-head">
+          <h2 id="inbox-title">Bandeja reciente</h2>
+          <a href="/app/bandeja/">Abrir bandeja</a>
+        </div>
+        <ul class="conv-mini" data-slot="inbox">
+          <li><span class="skeleton sk-line"></span></li>
+          <li><span class="skeleton sk-line"></span></li>
+          <li><span class="skeleton sk-line"></span></li>
+        </ul>
+      </section>
+    </div>
+  </div>
+</AppLayout>
+
+<style is:global>
+  .panel-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .panel .feed-card {
+    grid-row: span 2;
+  }
+  .panel .feed {
+    max-height: 640px;
+    overflow: hidden;
+  }
+  .today-summary {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .today-summary .big {
+    font-family: var(--font-display);
+    font-size: 44px;
+    font-weight: 750;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .stackbar {
+    display: flex;
+    height: 14px;
+    margin: 16px 0 10px;
+    border-radius: var(--r-pill);
+    overflow: hidden;
+    background: var(--surface-2);
+    gap: 2px;
+  }
+  .stackbar span {
+    display: block;
+    height: 100%;
+    transition: flex-grow var(--dur-3) var(--ease-out);
+  }
+  .next-list,
+  .flow-mini,
+  .conv-mini {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .next-list li,
+  .conv-mini li {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+    padding: 9px 0;
+    border-top: 1px solid var(--surface-2);
+    font-size: 14.5px;
+  }
+  .conv-mini li {
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+  }
+  .next-list b {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+  }
+  .flow-mini li {
+    display: grid;
+    grid-template-columns: 12px minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 0;
+    border-top: 1px solid var(--surface-2);
+  }
+  .flow-mini a {
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .flow-mini a:hover {
+    text-decoration: underline;
+  }
+  .flow-led {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--surface-3);
+  }
+  .flow-led.on {
+    background: var(--aqua);
+  }
+  .flow-led.fire {
+    animation: fire 700ms var(--ease-out);
+  }
+  @keyframes fire {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgb(67 201 170 / 0.7); }
+    50% { transform: scale(1.5); }
+    100% { transform: scale(1); box-shadow: 0 0 0 10px rgb(67 201 170 / 0); }
+  }
+  @media (max-width: 1100px) {
+    .panel-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .panel .feed-card {
+      grid-row: auto;
+    }
+    .panel .feed {
+      max-height: 420px;
+    }
+  }
+</style>

@@ -1,0 +1,147 @@
+---
+import AppLayout from '../../layouts/AppLayout.astro';
+import { SPECIALTIES } from '../../data/catalog';
+import { icon } from '../../lib/icons';
+---
+
+<AppLayout view="campanas" title="Campañas">
+  <div data-view-root class="camp-view">
+    <header class="page-head">
+      <div>
+        <h1>Campañas</h1>
+        <p>Mensajes a un grupo de pacientes, enviados de a poco para no saturar la recepción. Las respuestas llegan a la bandeja y los turnos a la agenda.</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-primary" type="button" data-new><Fragment set:html={icon('plus')} />Nueva campaña</button>
+      </div>
+    </header>
+    <ul class="camp-list" data-list>
+      {Array.from({ length: 3 }).map(() => <li class="card"><span class="skeleton sk-line" style="width:40%" /><span class="skeleton" style="height:14px;margin-top:16px" /></li>)}
+    </ul>
+
+    <dialog class="modal" id="new-camp" aria-labelledby="nc-title">
+      <form method="dialog" data-form>
+        <div class="modal-head">
+          <h2 id="nc-title">Nueva campaña</h2>
+          <button class="btn btn-sm btn-ghost btn-icon" type="button" data-close aria-label="Cerrar"><Fragment set:html={icon('close')} /></button>
+        </div>
+        <div class="modal-body">
+          <div class="field"><label for="nc-name">Nombre</label><input class="input" id="nc-name" name="name" required maxlength="50" placeholder="Por ejemplo: Control de lunares antes del verano" /></div>
+          <div class="field"><label for="nc-spec">Pacientes de</label>
+            <select class="select" id="nc-spec" name="specialty" data-spec>
+              <option value="todas">Todas las especialidades</option>
+              {SPECIALTIES.map((s) => <option value={s.id}>{s.name}</option>)}
+            </select>
+          </div>
+          <div class="field"><label for="nc-tpl">Plantilla</label><select class="select" id="nc-tpl" name="template" data-tpl></select></div>
+          <p class="small" data-audience aria-live="polite"></p>
+          <fieldset class="when">
+            <legend class="field-label">Cuándo</legend>
+            <label><input type="radio" name="when" value="now" checked /> Empezar ahora</label>
+            <label><input type="radio" name="when" value="tomorrow" /> Mañana a las 10:00</label>
+          </fieldset>
+        </div>
+        <div class="modal-foot">
+          <button class="btn" type="button" data-close>Cancelar</button>
+          <button class="btn btn-primary" type="submit">Crear campaña</button>
+        </div>
+      </form>
+    </dialog>
+  </div>
+</AppLayout>
+
+<style is:global>
+  .camp-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 12px;
+  }
+  .camp {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) auto;
+    gap: 24px;
+    align-items: center;
+  }
+  .camp h2 {
+    font-size: 20px;
+  }
+  .camp .sub {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 6px;
+    font-size: 14px;
+    color: var(--ink-2);
+  }
+  .progress {
+    position: relative;
+    height: 12px;
+    border-radius: var(--r-pill);
+    background: var(--surface-2);
+    overflow: hidden;
+  }
+  .progress span {
+    position: absolute;
+    inset: 0;
+    transform-origin: left;
+    background: var(--petrol);
+    border-radius: inherit;
+    transition: transform 600ms var(--ease-out);
+  }
+  .camp.sending .progress span {
+    background: var(--aqua-ink);
+  }
+  .funnel {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .funnel div {
+    font-size: 13px;
+    color: var(--ink-3);
+  }
+  .funnel b {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 24px;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .camp-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .st-borrador { color: var(--ink-3); }
+  .st-programada { color: var(--blue); }
+  .st-enviando { color: var(--aqua-ink); }
+  .st-pausada { color: var(--amber); }
+  .st-finalizada { color: var(--petrol); }
+  .when {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 6px;
+  }
+  .when label {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  @media (max-width: 1100px) {
+    .camp {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 12px;
+    }
+    .camp-actions {
+      justify-content: flex-start;
+    }
+  }
+</style>

@@ -1,0 +1,441 @@
+---
+import AppLayout from '../../../layouts/AppLayout.astro';
+import { KIND_META, TRIGGERS } from '../../../lib/flowmeta';
+import { icon } from '../../../lib/icons';
+const addable = (['wait', 'message', 'condition', 'action', 'end'] as const).map((k) => ({ kind: k, ...KIND_META[k] }));
+---
+
+<AppLayout view="editor" title="Editor de flujo">
+  <div data-view-root class="editor-view">
+    <nav class="crumbs small" aria-label="Ruta"><a href="/app/flujos/">Automatizaciones</a> <span aria-hidden="true">/</span> <span data-crumb>Editor</span></nav>
+    <header class="fe-head">
+      <div class="fe-title">
+        <label class="sr-only" for="fe-name">Nombre del flujo</label>
+        <input class="fe-name" id="fe-name" data-name maxlength="60" value="Cargando…" />
+        <div class="fe-meta">
+          <label class="sr-only" for="fe-trigger">Disparador</label>
+          <select class="select" id="fe-trigger" data-trigger>
+            {Object.entries(TRIGGERS).map(([v, l]) => <option value={v}>{l}</option>)}
+          </select>
+          <span class="switch-row"><span id="fe-active-lbl">Activa</span><button class="switch" type="button" role="switch" aria-checked="false" aria-labelledby="fe-active-lbl" data-active></button></span>
+          <span class="small muted" data-saved aria-live="polite">Guardado</span>
+        </div>
+      </div>
+      <div class="page-actions">
+        <button class="btn" type="button" data-fit title="Ajustar a la pantalla"><Fragment set:html={icon('search')} />Ajustar</button>
+        <button class="btn btn-danger" type="button" data-delete-flow>Eliminar</button>
+        <button class="btn btn-primary" type="button" data-run><Fragment set:html={icon('play')} /><span data-run-label>Ejecutar paso a paso</span></button>
+      </div>
+    </header>
+
+    <div class="fe">
+      <div class="fe-palette" role="group" aria-label="Agregar paso">
+        <p class="small muted">Agregar paso</p>
+        {
+          addable.map((a) => (
+            <button class="fe-add" type="button" data-add={a.kind} style={`--k:${a.hue}`}>
+              <Fragment set:html={icon(a.icon)} />
+              {a.label}
+            </button>
+          ))
+        }
+        <p class="small muted fe-hint">Arrastrá los nodos. Para conectar, arrastrá desde el punto derecho de un nodo hasta otro, o usá el panel de la derecha.</p>
+      </div>
+
+      <div class="fe-stage" data-stage>
+        <div class="fe-canvas" data-canvas data-keys-local tabindex="-1" aria-label="Diagrama del flujo">
+          <div class="fe-world" data-world>
+            <svg class="fe-edges" data-edges aria-hidden="true"></svg>
+            <div data-nodes></div>
+          </div>
+        </div>
+        <div class="fe-log" aria-labelledby="log-title">
+          <div class="card-head" style="margin:0 0 6px"><h2 id="log-title" style="font-size:16px">Ejecuciones</h2><span class="small muted" data-live-count></span></div>
+          <ol class="fe-log-list" data-log aria-live="polite"></ol>
+        </div>
+      </div>
+
+      <aside class="fe-inspector" aria-labelledby="insp-title" data-inspector>
+        <h2 id="insp-title">Paso elegido</h2>
+        <div data-insp-body><p class="muted small">Elegí un nodo del diagrama o de la lista de pasos.</p></div>
+      </aside>
+    </div>
+
+    <section class="card fe-steps" aria-labelledby="steps-title">
+      <div class="card-head"><h2 id="steps-title">Lista de pasos</h2><span class="small muted">Equivalente accesible del diagrama</span></div>
+      <ol class="steps" data-steps></ol>
+    </section>
+  </div>
+</AppLayout>
+
+<style is:global>
+  .fe-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 6px 0 14px;
+  }
+  .fe-title {
+    min-width: 0;
+    flex: 1 1 360px;
+  }
+  .fe-name {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    font-family: var(--font-display);
+    font-size: clamp(26px, 3vw, 36px);
+    font-weight: 750;
+    letter-spacing: -0.03em;
+    padding: 2px 6px;
+    margin-left: -6px;
+    border-radius: var(--r-md);
+  }
+  .fe-name:hover {
+    background: var(--surface);
+  }
+  .fe-meta {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+  .fe-meta .select {
+    width: auto;
+    min-height: 36px;
+    padding: 4px 10px;
+  }
+  .fe {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    grid-template-areas: 'pal pal' 'canvas canvas' 'log insp';
+    gap: 12px;
+    align-items: start;
+  }
+  .fe-palette { grid-area: pal; }
+  .fe-stage { display: contents; }
+  .fe-canvas { grid-area: canvas; }
+  .fe-log { grid-area: log; }
+  .fe-inspector { grid-area: insp; }
+  .fe-palette,
+  .fe-inspector {
+    background: var(--surface);
+    border-radius: var(--r-lg);
+    padding: 14px;
+    display: grid;
+    gap: 8px;
+  }
+  .fe-palette {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 8px 10px;
+  }
+  .fe-palette > p:first-child {
+    padding: 0 6px;
+  }
+  .fe-add {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    min-height: 42px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: var(--r-md);
+    background: var(--ground);
+    font-weight: 700;
+    font-size: 14.5px;
+    text-align: left;
+    transition: transform var(--dur-1) var(--ease-out), background-color var(--dur-2);
+  }
+  .fe-add .icon {
+    color: var(--k);
+  }
+  .fe-add:hover {
+    background: var(--surface-2);
+  }
+  .fe-add:active {
+    transform: scale(0.96);
+  }
+  .fe-hint {
+    flex: 1 1 260px;
+    line-height: 1.4;
+    padding: 0 6px;
+  }
+  .fe-canvas {
+    position: relative;
+    height: 470px;
+    overflow: hidden;
+    border-radius: var(--r-lg);
+    background-color: var(--surface);
+    background-image: radial-gradient(circle, var(--surface-3) 1.2px, transparent 1.3px);
+    background-size: 22px 22px;
+    touch-action: none;
+    cursor: grab;
+  }
+  .fe-canvas.panning {
+    cursor: grabbing;
+  }
+  .fe-world {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1700px;
+    height: 560px;
+    transform-origin: 0 0;
+  }
+  .fe-edges {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .fe-edges path.edge {
+    fill: none;
+    stroke: #b5c9cc;
+    stroke-width: 2.5;
+    transition: stroke var(--dur-2);
+  }
+  .fe-edges path.edge.lit {
+    stroke: var(--aqua);
+    stroke-width: 3.5;
+  }
+  .fe-edges path.edge.sel {
+    stroke: var(--petrol);
+  }
+  .fe-edges path.temp {
+    fill: none;
+    stroke: var(--petrol);
+    stroke-width: 2.5;
+    stroke-dasharray: 6 6;
+  }
+  .fe-edges text {
+    font-size: 13px;
+    font-weight: 800;
+    fill: var(--ink-2);
+    paint-order: stroke;
+    stroke: var(--surface);
+    stroke-width: 5px;
+  }
+  .fe-edges circle.pulse {
+    fill: var(--aqua);
+    stroke: #fff;
+    stroke-width: 3;
+  }
+  .fe-node {
+    position: absolute;
+    width: 190px;
+    height: 78px;
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 2px 10px;
+    align-content: center;
+    padding: 10px 14px 10px 12px;
+    border-radius: 16px;
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1.5px var(--line), 0 1px 0 rgb(7 32 40 / 0.04);
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+    transition: box-shadow var(--dur-2), transform var(--dur-2) var(--ease-out);
+  }
+  .fe-node:hover {
+    box-shadow: inset 0 0 0 1.5px var(--ink-3);
+  }
+  .fe-node.selected {
+    box-shadow: inset 0 0 0 2.5px var(--petrol);
+  }
+  .fe-node.dragging {
+    cursor: grabbing;
+    box-shadow: inset 0 0 0 2.5px var(--petrol), 0 18px 40px rgb(7 32 40 / 0.18);
+    z-index: 5;
+  }
+  .fe-node.active {
+    box-shadow: inset 0 0 0 3px var(--aqua), 0 0 0 6px rgb(67 201 170 / 0.25);
+    transform: scale(1.04);
+  }
+  .fe-node.done {
+    box-shadow: inset 0 0 0 2px var(--aqua);
+  }
+  .fe-node .k-icon {
+    grid-row: span 2;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    background: color-mix(in oklab, var(--k) 14%, white);
+    color: var(--k);
+  }
+  .fe-node b {
+    font-size: 14.5px;
+    line-height: 1.2;
+  }
+  .fe-node small {
+    font-size: 12.5px;
+    color: var(--ink-3);
+    line-height: 1.25;
+  }
+  .fe-node .kind {
+    position: absolute;
+    top: -9px;
+    left: 12px;
+    padding: 0 7px;
+    border-radius: var(--r-pill);
+    background: color-mix(in oklab, var(--k) 78%, black);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 18px;
+  }
+  .port {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--surface);
+    box-shadow: inset 0 0 0 2.5px var(--ink-3);
+    cursor: crosshair;
+    transition: transform var(--dur-1), box-shadow var(--dur-1);
+  }
+  .port:hover {
+    transform: scale(1.35);
+    box-shadow: inset 0 0 0 3px var(--petrol);
+  }
+  .port.in {
+    left: -8px;
+    top: 31px;
+    cursor: default;
+  }
+  .port.out {
+    right: -8px;
+    top: 31px;
+  }
+  .port.out.si {
+    top: 12px;
+    box-shadow: inset 0 0 0 2.5px var(--aqua-ink);
+  }
+  .port.out.no {
+    top: 50px;
+    box-shadow: inset 0 0 0 2.5px var(--red);
+  }
+  .fe-node.drop-target {
+    box-shadow: inset 0 0 0 2.5px var(--aqua-ink), 0 0 0 6px rgb(67 201 170 / 0.2);
+  }
+  .fe-log {
+    background: var(--surface);
+    border-radius: var(--r-lg);
+    padding: 12px 16px;
+  }
+  .fe-log-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 168px;
+    overflow: auto;
+    font-size: 14px;
+  }
+  .fe-log-list li {
+    display: grid;
+    grid-template-columns: 54px minmax(0, 1fr);
+    gap: 8px;
+    padding: 5px 0;
+    border-top: 1px solid var(--surface-2);
+  }
+  .fe-log-list li.fresh {
+    animation: slidein 360ms var(--ease-out);
+  }
+  .fe-log-list time {
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .fe-inspector h2 {
+    font-size: 18px;
+  }
+  .fe-inspector .field {
+    margin-top: 6px;
+  }
+  .fe-inspector .row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .fe-steps {
+    margin-top: 12px;
+  }
+  .steps {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 6px;
+  }
+  .steps li button {
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: var(--r-md);
+    background: var(--ground);
+    text-align: left;
+    font-size: 14.5px;
+  }
+  .steps li button[aria-current='true'] {
+    background: var(--surface-2);
+    box-shadow: inset 0 0 0 2px var(--petrol);
+  }
+  .steps li.active button {
+    box-shadow: inset 0 0 0 2px var(--aqua);
+  }
+  .steps .k-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    display: grid;
+    place-items: center;
+    background: color-mix(in oklab, var(--k) 14%, white);
+    color: var(--k);
+  }
+  .steps small {
+    color: var(--ink-3);
+  }
+  @media (max-width: 900px) {
+    .fe {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: 'pal' 'canvas' 'insp' 'log';
+    }
+    .fe-canvas {
+      height: 320px;
+    }
+  }
+  @media (max-width: 720px) {
+    .fe-head .page-actions {
+      width: 100%;
+    }
+    .fe-head .page-actions .btn-primary {
+      flex: 1;
+    }
+    .fe-palette {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .fe-palette > p:first-child {
+      grid-column: 1 / -1;
+    }
+    .fe-hint {
+      display: none;
+    }
+    .fe-canvas {
+      height: 220px;
+    }
+  }
+</style>

@@ -1,0 +1,309 @@
+---
+import AppLayout from '../../layouts/AppLayout.astro';
+import { SPECIALTIES } from '../../data/catalog';
+import { icon } from '../../lib/icons';
+---
+
+<AppLayout view="agenda" title="Agenda">
+  <div data-view-root class="agenda-view">
+    <header class="page-head">
+      <div>
+        <h1>Agenda</h1>
+        <p>Los 40 profesionales en una línea de tiempo. Cada turno cambia de color cuando el paciente responde al recordatorio.</p>
+      </div>
+      <div class="page-actions">
+        <div class="chips" role="group" aria-label="Vista">
+          <button class="chip" type="button" data-mode="timeline" aria-pressed="true">Línea de tiempo</button>
+          <button class="chip" type="button" data-mode="list" aria-pressed="false">Lista</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="agenda-bar">
+      <div class="days" role="tablist" aria-label="Días" data-days></div>
+      <select class="select" aria-label="Especialidad" data-spec>
+        <option value="">Todas las especialidades</option>
+        {SPECIALTIES.map((s) => <option value={s.id}>{s.name}</option>)}
+      </select>
+    </div>
+    <ul class="legend agenda-legend" data-summary aria-live="polite"></ul>
+
+    <section class="card agenda-card" aria-label="Turnos del día">
+      <div class="gantt" data-gantt>
+        {Array.from({ length: 10 }).map(() => <span class="skeleton sk-line" style="height:22px" />)}
+      </div>
+      <div class="alist" data-list hidden></div>
+    </section>
+
+    <aside class="drawer" id="appt-drawer" aria-labelledby="drawer-title" aria-hidden="true" data-drawer>
+      <div class="drawer-head">
+        <h2 id="drawer-title">Turno</h2>
+        <button class="btn btn-sm btn-ghost btn-icon" type="button" data-close-drawer aria-label="Cerrar"><Fragment set:html={icon('close')} /></button>
+      </div>
+      <div class="drawer-body" data-drawer-body></div>
+    </aside>
+  </div>
+</AppLayout>
+
+<style is:global>
+  .agenda-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .agenda-bar .select {
+    width: auto;
+    margin-left: auto;
+  }
+  .days {
+    min-height: 42px;
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    border-radius: var(--r-pill);
+    background: var(--surface);
+  }
+  .days button {
+    min-height: 34px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: var(--r-pill);
+    background: transparent;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ink-2);
+    white-space: nowrap;
+    transition: background-color var(--dur-2), color var(--dur-2);
+  }
+  .days button:hover {
+    background: var(--surface-2);
+  }
+  .days button[aria-selected='true'] {
+    background: var(--petrol);
+    color: #fff;
+  }
+  .days button .today-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-left: 6px;
+    border-radius: 50%;
+    background: var(--aqua);
+    vertical-align: middle;
+  }
+  .agenda-legend button {
+    border: 0;
+    background: transparent;
+    padding: 2px 4px;
+    border-radius: 6px;
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 14px;
+  }
+  .agenda-legend button[aria-pressed='true'] {
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1px var(--ink-3);
+  }
+  .agenda-card {
+    padding: 12px 16px 16px;
+    min-height: 70vh;
+  }
+  .agenda-legend {
+    min-height: 26px;
+  }
+  .gantt {
+    --label: 210px;
+    position: relative;
+  }
+  .g-hours {
+    display: grid;
+    grid-template-columns: var(--label) 1fr;
+    position: sticky;
+    top: 64px;
+    z-index: 3;
+    background: var(--surface);
+    padding: 6px 0;
+  }
+  .g-hours-track {
+    position: relative;
+    height: 18px;
+  }
+  .g-hours-track span {
+    position: absolute;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .g-row {
+    display: grid;
+    grid-template-columns: var(--label) 1fr;
+    align-items: center;
+    min-height: 34px;
+    border-top: 1px solid var(--surface-2);
+  }
+  .g-pro {
+    font-size: 13.5px;
+    padding-right: 10px;
+    line-height: 1.2;
+  }
+  .g-pro small {
+    color: var(--ink-3);
+    font-size: 12px;
+  }
+  .g-track {
+    position: relative;
+    height: 34px;
+    background-image: repeating-linear-gradient(90deg, var(--surface-2) 0 1px, transparent 1px calc(100% / 12));
+  }
+  .g-appt {
+    position: absolute;
+    top: 5px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: var(--surface-3);
+    transition: background-color var(--dur-3), transform var(--dur-1) var(--ease-out);
+  }
+  .g-appt:hover {
+    transform: scaleY(1.15);
+  }
+  .g-appt.pendiente { background: var(--surface-3); }
+  .g-appt.recordado { background: #9dbbe6; }
+  .g-appt.confirmado { background: var(--aqua); }
+  .g-appt.atendido { background: var(--petrol); }
+  .g-appt.reprogramado { background: #e7b56f; }
+  .g-appt.cancelado { background: repeating-linear-gradient(135deg, #f1c3be 0 4px, #f9e0dd 4px 8px); }
+  .g-appt.ausente { background: #b88079; }
+  .g-appt.dim {
+    opacity: 0.18;
+  }
+  .g-appt.changed {
+    animation: apptpop 900ms var(--ease-spring);
+  }
+  @keyframes apptpop {
+    0% { transform: scale(1); }
+    35% { transform: scale(1.5, 1.35); }
+    100% { transform: scale(1); }
+  }
+  .g-now {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--red);
+    z-index: 2;
+    pointer-events: none;
+    transition: transform 400ms linear;
+  }
+  .g-now::before {
+    content: attr(data-label);
+    position: absolute;
+    top: -2px;
+    left: 4px;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--red);
+    background: var(--surface);
+    padding: 0 3px;
+    border-radius: 4px;
+  }
+  .g-now-wrap {
+    position: absolute;
+    top: 30px;
+    bottom: 0;
+    left: var(--label);
+    right: 0;
+    pointer-events: none;
+  }
+  .alist-hour {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 18px;
+    padding: 14px 0 4px;
+  }
+  .alist ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .alist-item {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+    padding: 10px 6px;
+    border: 0;
+    border-top: 1px solid var(--surface-2);
+    background: transparent;
+    text-align: left;
+    font-size: 14.5px;
+    border-radius: 6px;
+  }
+  .alist-item:hover {
+    background: var(--ground);
+  }
+  .alist-item b {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+  }
+  .alist-item small {
+    display: block;
+    color: var(--ink-3);
+  }
+  .drawer dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px 16px;
+    margin: 0 0 18px;
+    font-size: 15px;
+  }
+  .drawer dt {
+    color: var(--ink-3);
+  }
+  .drawer dd {
+    margin: 0;
+  }
+  .drawer .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .drawer .bubble-preview {
+    margin: 18px 0 0;
+    padding: 12px 14px;
+    border-radius: 14px 14px 14px 4px;
+    background: var(--ground);
+    font-size: 14.5px;
+  }
+  @media (max-width: 1100px) {
+    .gantt {
+      --label: 150px;
+    }
+  }
+  @media (max-width: 720px) {
+    .agenda-view .page-actions {
+      display: none;
+    }
+    .days {
+      overflow-x: auto;
+      scrollbar-width: none;
+      max-width: 100%;
+    }
+    .agenda-bar .select {
+      margin-left: 0;
+      width: 100%;
+    }
+    .agenda-card {
+      padding: 4px 12px 12px;
+    }
+    .agenda-legend {
+      min-height: 52px;
+    }
+  }
+</style>

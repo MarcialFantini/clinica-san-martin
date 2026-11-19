@@ -1,0 +1,49 @@
+---
+// Scene 3: the patient answers the reminder with one tap; the confirmation rate rolls.
+import { CHAT_PATIENTS } from './data';
+
+const first = CHAT_PATIENTS[0]!;
+---
+
+<section id="confirmaciones" class="scene confirm-scene" aria-labelledby="confirm-title" data-scene="confirmaciones">
+  <div class="scene-intro">
+    <h2 id="confirm-title">Confirmar es tocar un botón</h2>
+    <p>
+      Un día antes, cada paciente recibe su recordatorio. Responde con un toque y la agenda se acomoda sola: el turno
+      queda confirmado o pasa a otro horario libre. Probalo.
+    </p>
+  </div>
+
+  <div class="confirm-grid">
+    <div class="chat" data-chat>
+      <div class="chat-head">
+        <span class="chat-mark" aria-hidden="true">SM</span>
+        <p><b>Clínica San Martín</b><span>Mensajería de turnos</span></p>
+      </div>
+      <ol class="chat-log" data-chat-log aria-live="polite">
+        <li class="bubble bot">
+          Hola {first.name}, te recordamos tu turno de {first.specialty} con {first.pro} el {first.when}. ¿Confirmás tu
+          asistencia?
+        </li>
+      </ol>
+      <div class="chat-replies" role="group" aria-label="Responder como paciente">
+        <button class="reply" type="button" data-reply="confirma">Confirmo</button>
+        <button class="reply" type="button" data-reply="reprograma">Reprogramo</button>
+      </div>
+    </div>
+
+    <div class="rate">
+      <p class="rate-label">Tasa de confirmación de hoy</p>
+      <p class="rate-value num">
+        <span class="sr-only" data-rate-text>75,4 %</span>
+        <span class="odo" data-odo aria-hidden="true">75,4</span><span class="rate-unit" aria-hidden="true">%</span>
+      </p>
+      <dl class="rate-counts">
+        <div><dt>Confirmados</dt><dd class="num" data-count="confirma">46</dd></div>
+        <div><dt>Reprogramados</dt><dd class="num" data-count="reprograma">6</dd></div>
+        <div><dt>Sin respuesta todavía</dt><dd class="num" data-count="silencio">9</dd></div>
+      </dl>
+      <p class="rate-note">Sobre los recordatorios que salieron hoy. Cada respuesta tuya suma a la cuenta.</p>
+    </div>
+  </div>
+</section>

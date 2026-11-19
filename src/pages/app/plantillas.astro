@@ -1,0 +1,227 @@
+---
+import AppLayout from '../../layouts/AppLayout.astro';
+import { icon } from '../../lib/icons';
+import { TEMPLATE_VARS } from '../../lib/templating';
+---
+
+<AppLayout view="plantillas" title="Plantillas">
+  <div data-view-root class="tpl-view">
+    <header class="page-head">
+      <div>
+        <h1>Plantillas</h1>
+        <p>Los mensajes que Recepta envía sola. Editá una y el próximo recordatorio ya sale con el texto nuevo.</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-primary" type="button" data-new><Fragment set:html={icon('plus')} />Nueva plantilla</button>
+      </div>
+    </header>
+
+    <div class="tpl">
+      <ul class="tpl-list" data-list aria-label="Plantillas">
+        {Array.from({ length: 6 }).map(() => <li class="card"><span class="skeleton sk-line" /></li>)}
+      </ul>
+
+      <section class="card tpl-editor" aria-labelledby="tpl-title" data-editor>
+        <div class="card-head">
+          <h2 id="tpl-title">Editar plantilla</h2>
+          <span class="small muted" data-saved aria-live="polite"></span>
+        </div>
+        <form class="tpl-form" data-form>
+          <div class="field"><label for="tpl-name">Nombre</label><input class="input" id="tpl-name" name="name" maxlength="50" /></div>
+          <div class="field">
+            <label for="tpl-cat">Tipo</label>
+            <select class="select" id="tpl-cat" name="category">
+              <option value="recordatorio">Recordatorio</option>
+              <option value="confirmacion">Confirmación</option>
+              <option value="respuesta">Respuesta automática</option>
+              <option value="encuesta">Encuesta</option>
+              <option value="campana">Campaña</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="tpl-body">Mensaje</label>
+            <textarea class="textarea" id="tpl-body" name="body" maxlength="480" rows="5"></textarea>
+            <div class="chips" aria-label="Insertar variable">
+              {TEMPLATE_VARS.map((v) => <button class="chip" type="button" data-var={v}>{`{{${v}}}`}</button>)}
+            </div>
+          </div>
+          <div class="field">
+            <label for="tpl-quick">Respuestas rápidas</label>
+            <input class="input" id="tpl-quick" name="quick" placeholder="Separadas por coma: Confirmo, Reprogramo" maxlength="80" />
+          </div>
+          <p class="small muted" data-used></p>
+          <div class="row-actions"><button class="btn btn-sm btn-danger" type="button" data-delete>Eliminar plantilla</button></div>
+        </form>
+      </section>
+
+      <section class="tpl-preview" aria-labelledby="pv-title">
+        <h2 id="pv-title" class="small muted">Así la ve el paciente</h2>
+        <div class="phone" aria-live="polite">
+          <div class="phone-head"><span class="brand-mark" aria-hidden="true">R</span><span><b>Clínica San Martín</b><br /><small>Canal de mensajería simulado</small></span></div>
+          <div class="phone-body" data-preview></div>
+        </div>
+        <dl class="tpl-stats" data-stats></dl>
+      </section>
+    </div>
+  </div>
+</AppLayout>
+
+<style is:global>
+  .tpl {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr) 340px;
+    gap: 12px;
+    align-items: start;
+  }
+  .tpl-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 6px;
+  }
+  .tpl-item {
+    display: grid;
+    gap: 4px;
+    width: 100%;
+    padding: 12px 14px;
+    border: 0;
+    border-radius: var(--r-md);
+    background: var(--surface);
+    text-align: left;
+    transition: box-shadow var(--dur-2), transform var(--dur-1);
+  }
+  .tpl-item:hover {
+    box-shadow: inset 0 0 0 1px var(--ink-3);
+  }
+  .tpl-item[aria-current='true'] {
+    box-shadow: inset 0 0 0 2px var(--petrol);
+  }
+  .tpl-item b {
+    font-size: 15px;
+  }
+  .tpl-item .meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 13px;
+    color: var(--ink-3);
+  }
+  .tpl-item .meta b {
+    font-size: 13px;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .tpl-form {
+    display: grid;
+    gap: 14px;
+  }
+  .tpl-form .chips {
+    margin-top: 6px;
+  }
+  .tpl-form .chip {
+    min-height: 30px;
+    font-size: 13px;
+  }
+  .phone {
+    border-radius: 28px;
+    background: var(--petrol-deep);
+    padding: 10px;
+  }
+  .phone-head {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 10px 12px;
+    color: #fff;
+    font-size: 14px;
+    line-height: 1.2;
+  }
+  .phone-head small {
+    color: #a9cbcf;
+  }
+  .phone-body {
+    border-radius: 20px;
+    background: var(--ground);
+    padding: 16px 12px;
+    min-height: 260px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .phone-body .bubble {
+    align-self: flex-start;
+    max-width: 88%;
+    padding: 10px 14px;
+    border-radius: 16px 16px 16px 4px;
+    background: var(--surface);
+    font-size: 15px;
+    line-height: 1.45;
+    white-space: pre-wrap;
+  }
+  .phone-body .bubble mark {
+    background: var(--aqua-soft);
+    color: inherit;
+    border-radius: 4px;
+    padding: 0 2px;
+  }
+  .phone-body .quick {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .phone-body .quick span {
+    padding: 6px 14px;
+    border-radius: var(--r-pill);
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1px var(--line);
+    color: var(--petrol);
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .tpl-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 12px 0 0;
+  }
+  .tpl-stats div {
+    background: var(--surface);
+    border-radius: var(--r-md);
+    padding: 12px;
+  }
+  .tpl-stats dt {
+    font-size: 13px;
+    color: var(--ink-3);
+  }
+  .tpl-stats dd {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 1280px) {
+    .tpl {
+      grid-template-columns: 260px minmax(0, 1fr);
+    }
+    .tpl-preview {
+      grid-column: 2;
+    }
+  }
+  @media (max-width: 860px) {
+    .tpl {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .tpl-preview {
+      grid-column: auto;
+    }
+    .tpl-list {
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(200px, 70%);
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding-bottom: 4px;
+    }
+  }
+</style>

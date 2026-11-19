@@ -1,0 +1,96 @@
+---
+// Scene 2: incoming messages are classified and routed to their professional.
+import { SPECIALTY_BY_ID } from '../../data/catalog';
+import { INITIAL_COUNTS, INITIAL_MESSAGES, LANES } from './data';
+
+const laneById = Object.fromEntries(LANES.map((l) => [l.id, l]));
+---
+
+<section id="bandeja" class="scene inbox-scene" aria-labelledby="bandeja-title" data-scene="bandeja">
+  <div class="scene-intro">
+    <h2 id="bandeja-title">Cada consulta llega a quien corresponde</h2>
+    <p>
+      Los mensajes entran a cualquier hora. Recepta lee la especialidad, le pone la etiqueta y lo deriva al profesional
+      con menos carga. Lo que no entiende, pasa a una persona.
+    </p>
+  </div>
+
+  <div class="lp-chips" role="group" aria-label="Filtrar la bandeja por especialidad" data-inbox-filters>
+    <button class="lp-chip" type="button" data-filter="todas" aria-pressed="true">Todas</button>
+    {
+      LANES.map((l) => (
+        <button class="lp-chip" type="button" data-filter={l.id} aria-pressed="false" style={`--h:${l.hue}`}>
+          {l.short}
+        </button>
+      ))
+    }
+  </div>
+
+  <div class="inbox-stage" data-inbox-stage>
+    <div class="inbox-col">
+      <h3>Mensajes entrantes</h3>
+      <ol class="msg-list" data-msg-list>
+        {
+          INITIAL_MESSAGES.map((m) => {
+            const lane = laneById[m.lane];
+            return (
+              <li class="msg" data-lane={m.lane}>
+                <p class="msg-name">{m.name}</p>
+                <p class="msg-text">{m.text}</p>
+                <p class="msg-tag">
+                  <span class="lp-tag" style={`--h:${lane?.hue ?? 20}`}>{lane?.name}</span>
+                  <span class="msg-route">a {lane?.pro}</span>
+                </p>
+              </li>
+            );
+          })
+        }
+      </ol>
+    </div>
+
+    <div class="classifier" data-classifier aria-hidden="true">
+      <span class="classifier-ring"></span>
+      <p>Clasificador</p>
+      <b data-classifier-label>listo</b>
+    </div>
+
+    <div class="lanes-col">
+      <h3>Profesionales</h3>
+      <ul class="lanes" data-lanes>
+        {
+          LANES.map((l) => (
+            <li class="lane" data-lane={l.id} style={`--h:${l.hue}`}>
+              <span class="lane-dot" aria-hidden="true" />
+              <span class="lane-name">
+                {l.id === 'recepcion' ? 'Recepción' : SPECIALTY_BY_ID[l.id].short}
+                <small>{l.pro}</small>
+              </span>
+              <b class="lane-count num" data-lane-count>
+                {INITIAL_COUNTS[l.id] ?? 0}
+              </b>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+    <div class="fly-layer" data-fly aria-hidden="true"></div>
+  </div>
+
+  <form class="simulate" data-simulate>
+    <label for="sim-text">Simular paciente: escribí una consulta como si fueras uno</label>
+    <div class="sim-row">
+      <input
+        id="sim-text"
+        name="consulta"
+        class="lp-input"
+        type="text"
+        maxlength="160"
+        autocomplete="off"
+        placeholder="Ej.: me duele la rodilla desde el partido del domingo"
+        required
+      />
+      <button class="btn btn-primary" type="submit">Enviar consulta</button>
+    </div>
+    <p class="sim-result" data-sim-result aria-live="polite"></p>
+  </form>
+</section>
